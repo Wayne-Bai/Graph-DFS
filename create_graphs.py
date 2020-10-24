@@ -15,22 +15,13 @@ def create(args):
         if not args.max_node_feature_num:
             # print(type(graphs[1].nodes._nodes), graphs[1].nodes._nodes.keys())
             args.max_node_feature_num = len(list(graphs[1].nodes._nodes._atlas[1].keys()))  # now equals to 28
-        if args.dataset_type == "2" or args.dataset_type == '500-10':
-            args.max_prev_node = 6
-        elif args.dataset_type == "54" or args.dataset_type == '2-30':
-            args.max_prev_node = 20
-        elif args.dataset_type == "9":
-            args.max_prev_node = 150
-        elif args.dataset_type == "500":
-            args.max_prev_node = 40
-        elif args.dataset_type == "50-200":
-            args.max_prev_node = 150
-        elif args.dataset_type == "POC":
-            args.max_prev_node = 90
-        elif args.dataset_type == 'UAF':
-            args.max_prev_node = 50
-        elif args.dataset_type == 'TC':
-            args.max_prev_node = 80
+        if not args.max_child_node:
+            max_child_node = 0
+            for i in range(len(graphs)):
+                for node in graphs[1].nodes():
+                    temp_max_child_node = graphs[1].degree(node)
+                    max_child_node = max(temp_max_child_node, max_child_node)
+            args.max_child_node = max_child_node
 
     return graphs
 
