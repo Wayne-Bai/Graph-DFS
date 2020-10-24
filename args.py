@@ -50,6 +50,7 @@ class Args():
 
         self.max_node_feature_num = None  # max node feature number of desired output # note as NF
         self.max_edge_feature_num = 0  # max edge feature number of desired output
+        self.max_child_node = None
         self.edge_feature_output_dim = None  # note as EF
         self.node_feature_input_dim = None  # note as INF
 
