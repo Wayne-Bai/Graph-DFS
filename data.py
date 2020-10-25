@@ -17,6 +17,7 @@ import time
 from model import *
 from utils import *
 
+import create_graphs
 
 
 
@@ -404,18 +405,24 @@ class Graph_sequence_sampler_pytorch(torch.utils.data.Dataset):
             node_idx_global = np.asarray(list(G.nodes))
             self.node_num_all.append(node_idx_global)
             child_dic = {}
+            max_child_node = 0
             for node in G.nodes():
                 if G.nodes[node]['f1'] == 1:
                     num_neighbors = len(list(G.neighbors(node)))
                     child_dic[list(G.nodes).index(node)] = num_neighbors
+                    max_child_node = max(num_neighbors,max_child_node)
                 else:
                     num_neighbors = len(list(G.neighbors(node)))
                     child_dic[list(G.nodes).index(node)] = num_neighbors-1
+                    max_child_node = max(num_neighbors-1, max_child_node)
+            self.max_child_node = max_child_node
             self.child_num.append(child_dic)
 
             self.raw_node_f_all.append(dict(G.nodes._nodes))
 
             self.len_all.append(G.number_of_nodes())
+
+        self.n = max(self.len_all)
 
         # self.max_prev_node = max_prev_node
 
@@ -444,7 +451,8 @@ class Graph_sequence_sampler_pytorch(torch.utils.data.Dataset):
         node_feature = node_feature[x_idx,:]
         number_of_children = number_of_children[x_idx,:]
 
-        x_batch = np.concatenate(node_feature, number_of_children)
+        x_batch = np.zeros((self.n,node_feature.shape[1]+self.max_child_node))
+        x_batch[0:node_feature.shape[0],:] = np.concatenate((node_feature, number_of_children), axis=1)
 
         return {'x':x_batch,'len':len_batch}
 
