@@ -3,11 +3,10 @@ import numpy as np
 
 from utils import *
 from data import *
-from datat_process import Graph_load_batch as ast_graph_load_batch
+from data_process import Graph_load_batch as ast_graph_load_batch
 
 def create(args):
 ### load datasets
-    graphs=[]
     # synthetic graphs
     if args.graph_type == 'AST' or args.graph_type == '200Graphs':
         graphs, rule_matrix = ast_graph_load_batch(min_num_nodes=1, name=args.graph_type)
@@ -18,9 +17,13 @@ def create(args):
         if not args.max_child_node:
             max_child_node = 0
             for i in range(len(graphs)):
-                for node in graphs[1].nodes():
-                    temp_max_child_node = graphs[1].degree(node)
-                    max_child_node = max(temp_max_child_node, max_child_node)
+                for node in graphs[i].nodes():
+                    if graphs[i].nodes[node]['f1'] == 1:
+                        temp_max_child_node = graphs[i].degree(node)
+                        max_child_node = max(temp_max_child_node, max_child_node)
+                    else:
+                        temp_max_child_node = graphs[i].degree(node)-1
+                        max_child_node = max(temp_max_child_node, max_child_node)
             args.max_child_node = max_child_node
 
     return graphs
