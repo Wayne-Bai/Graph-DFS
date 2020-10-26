@@ -20,7 +20,6 @@ from utils import *
 import create_graphs
 
 
-
 # load ENZYMES and PROTEIN and DD dataset
 def Graph_load_batch(min_num_nodes = 20, max_num_nodes = 1000, name = 'ENZYMES',node_attributes = True,graph_labels=True):
     '''
@@ -186,6 +185,45 @@ def dfs_seq(G, start_id):
     output = list(DFS)
     return output
 
+def generate_Graph(matrix, G:nx.Graph,args):
+    # node
+    N= matrix.shape(0)
+    node_idx, f_dict = [],[]
+    for node in range(N):
+        indicator = matrix[node, :args.max_node_feature_num]
+        if indicator.any():
+            node_idx.append(node)
+            f_dict.append({f'f{feature_idx}': matrix[node, feature_idx] for feature_idx in range(args.max_node_feature_num)})
+    node_list = list(zip(node_idx,f_dict))
+    G.add_nodes_from(node_list)
+    #edge
+    next_node_num = []
+    for node in range(N):
+        indicator = matrix[node, args.max_node_feature_num:args.max_child_node]
+        if indicator.any():
+            for idx in range(args.max_child_node):
+                if matrix[node, args.max_node_feature_num+idx] == 1:
+                    child_num = idx
+                    next_node_num.append(child_num)
+
+    used_node = []
+    while sum(next_node_num) != 0:
+        curr_last_element = find_last_element(next_node_num)
+        while next_node_num[curr_last_element] > 0:
+            for i in range(curr_last_element + 1, len(next_node_num)):
+                if i not in used_node:
+                    G.add_edge(curr_last_element, i)
+                    next_node_num[curr_last_element] = next_node_num[curr_last_element] - 1
+                    if next_node_num[i] == 0:
+                        used_node.append(i)
+                    if next_node_num[curr_last_element] == 0:
+                        break
+
+    return G
+
+def find_last_element(list):
+    ls = [i for i, j in enumerate(list) if j != 0]
+    return ls[-1]
 
 def encode_adj(adj, max_prev_node=10, is_full = False):
     '''
