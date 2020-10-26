@@ -19,6 +19,17 @@ import numpy as np
 import time
 
 
+def get_max_value(l):
+    max_value = max(list(l))
+    for i in range(len(list(l))):
+        if list(l)[i] == max_value:
+            l[i] = 1
+        else:
+            l[i] = 0
+    max_value_index = list(l).index(max_value)
+
+    return l,max_value_index
+
 
 def binary_cross_entropy_weight(y_pred, y,has_weight=False, weight_length=1, weight_max=10):
     '''
