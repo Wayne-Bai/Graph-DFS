@@ -187,7 +187,7 @@ def dfs_seq(G, start_id):
 
 def generate_Graph(matrix, G:nx.Graph,args):
     # node
-    N= matrix.shape(0)
+    N, _ = matrix.shape
     node_idx, f_dict = [],[]
     for node in range(N):
         indicator = matrix[node, :args.max_node_feature_num]
@@ -453,7 +453,7 @@ class Graph_sequence_sampler_pytorch(torch.utils.data.Dataset):
                     num_neighbors = len(list(G.neighbors(node)))
                     child_dic[list(G.nodes).index(node)] = num_neighbors-1
                     max_child_node = max(num_neighbors-1, max_child_node)
-            self.max_child_node = max_child_node
+            self.max_child_node = max_child_node+1
             self.child_num.append(child_dic)
 
             self.raw_node_f_all.append(dict(G.nodes._nodes))
@@ -509,7 +509,7 @@ class Graph_sequence_sampler_pytorch(torch.utils.data.Dataset):
         return raw_node_f
     def construct_node_child(self, node_child, node_num_list):
         node_child_num_list = list(node_child.values())
-        N,CN = len(node_child), max(node_child_num_list)
+        N,CN = len(node_child), max(node_child_num_list)+1
         offset = min(node_num_list)
         number_of_child = np.zeros(shape=(N,CN))
         for node, child in node_child.items():
