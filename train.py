@@ -93,10 +93,9 @@ def test_rnn_epoch(epoch, args, rnn, output, node_f_gen=None, edge_f_gen=None, t
 
     node_rule_matrix = torch.FloatTensor(args.node_rules).cuda()
 
-    first_node_rule = Variable(torch.zeros(test_batch_size,1,args.max_node_feature)).cuda()
+    first_node_rule = Variable(torch.zeros(1,1,args.max_node_feature_num)).cuda()
     first_node_rule[:,0,0] = 1
-    next_node_rule = []
-    next_node_rule.append(first_node_rule)
+    next_node_rule = [[first_node_rule] for i in range(test_batch_size)]
 
     child_node = [[1] for i in range(test_batch_size)]
 
@@ -107,38 +106,60 @@ def test_rnn_epoch(epoch, args, rnn, output, node_f_gen=None, edge_f_gen=None, t
         x_step = Variable(torch.zeros(test_batch_size,1,args.max_node_feature_num+args.max_child_node)).cuda()
 
         x_slice_list = []
-        node_rule_slice_list = []
 
         for bs in range(x_pred_step.size(0)):
             if child_node[bs] != [] and child_node[bs][-1] > 0:
                 pred_node_feature = x_pred_step[bs:bs+1,:,:args.max_node_feature_num]
-                child_num = x_pred_step[bs:bs+1,:,:args.max_node_feature+args.max_child_node]
-                mask_node_feature = pred_node_feature * next_node_rule[-1][bs:bs+1,:,:]
-                x_pred_slice = np.concatenate((mask_node_feature,child_num),axis=1)
+                child_num = x_pred_step[bs:bs+1,:,args.max_node_feature_num:args.max_node_feature_num+args.max_child_node]
+                mask_node_feature = pred_node_feature * next_node_rule[bs][-1]
+                x_pred_slice = torch.cat((mask_node_feature,child_num),dim=2)
 
-                node_feature = nn.Softmax(x_pred_slice[:,:,:args.max_node_feature_num])
-                child_num_pred = nn.Softmax(x_pred_slice[:,:,:args.max_node_feature_num+args.max_child_node])
+                node_feature = torch.softmax(x_pred_slice[:,:,:args.max_node_feature_num], dim=2)
+                child_num_pred = torch.softmax(x_pred_slice[:,:,args.max_node_feature_num:args.max_node_feature_num+args.max_child_node], dim=2)
 
                 max_p_node_feature, node_feature_index = get_max_value(node_feature)
                 max_p_child_num_pred, child_num_index = get_max_value(child_num_pred)
 
-                node_rule_slice = node_rule_matrix[node_feature_index:node_feature_index+1,:]
+                node_rule_slice = Variable(torch.zeros(1,1,args.max_node_feature_num)).cuda()
+                node_rule_slice[0,:,:] = node_rule_matrix[node_feature_index:node_feature_index+1,:]
 
-                node_rule_slice_list.append(node_rule_slice)
+                next_node_rule[bs].append(node_rule_slice)
 
-                x_pred_slice = np.concatenate((max_p_node_feature, max_p_child_num_pred), axis=1)
+                x_pred_slice = torch.cat((max_p_node_feature, max_p_child_num_pred), dim=2)
                 x_slice_list.append(x_pred_slice.cuda())
 
-                if bs == x_pred_step.size(0) - 1:
-                    node_rule = torch.cat(node_rule_slice_list,dim=0)
-                    next_node_rule.append(node_rule)
 
                 child_node[bs][-1] = child_node[bs][-1] - 1
                 child_node[bs].append(child_num_index)
 
             elif child_node[bs] != [] and child_node[bs][-1] == 0:
                 child_node[bs].pop()
-                next_node_rule.pop()
+                next_node_rule[bs].pop()
+
+                pred_node_feature = x_pred_step[bs:bs + 1, :, :args.max_node_feature_num]
+                child_num = x_pred_step[bs:bs + 1, :,
+                            args.max_node_feature_num:args.max_node_feature_num + args.max_child_node]
+                mask_node_feature = pred_node_feature * next_node_rule[bs][-1]
+                x_pred_slice = torch.cat((mask_node_feature, child_num), dim=2)
+
+                node_feature = torch.softmax(x_pred_slice[:, :, :args.max_node_feature_num], dim=2)
+                child_num_pred = torch.softmax(
+                    x_pred_slice[:, :, args.max_node_feature_num:args.max_node_feature_num + args.max_child_node],
+                    dim=2)
+
+                max_p_node_feature, node_feature_index = get_max_value(node_feature)
+                max_p_child_num_pred, child_num_index = get_max_value(child_num_pred)
+
+                node_rule_slice = Variable(torch.zeros(1, 1, args.max_node_feature_num)).cuda()
+                node_rule_slice[0, :, :] = node_rule_matrix[node_feature_index:node_feature_index + 1, :]
+
+                next_node_rule[bs].append(node_rule_slice)
+
+                x_pred_slice = torch.cat((max_p_node_feature, max_p_child_num_pred), dim=2)
+                x_slice_list.append(x_pred_slice.cuda())
+
+                child_node[bs][-1] = child_node[bs][-1] - 1
+                child_node[bs].append(child_num_index)
 
         x_pred_step = torch.cat(x_slice_list, dim=0)
         x_pred_long[:,i:i+1,:] = x_pred_step
@@ -148,8 +169,10 @@ def test_rnn_epoch(epoch, args, rnn, output, node_f_gen=None, edge_f_gen=None, t
     G_pred_list = []
     for i in range(test_batch_size):
         G_pred = nx.Graph()
-        G = generate_Graph(x_pred_long_data[i].cpu().numpy, G_pred, args)
+        G = generate_Graph(x_pred_long_data[i].cpu().numpy(), G_pred, args)
         G_pred_list.append(G)
+
+    return G_pred_list
 
 ########### train function for LSTM + VAE
 def train(args, dataset_train, rnn, output, node_f_gen=None, edge_f_gen=None, test_set=None):
