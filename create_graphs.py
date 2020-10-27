@@ -14,6 +14,7 @@ def create(args):
         if not args.max_node_feature_num:
             # print(type(graphs[1].nodes._nodes), graphs[1].nodes._nodes.keys())
             args.max_node_feature_num = len(list(graphs[1].nodes._nodes._atlas[1].keys()))  # now equals to 28
+            args.node_rules = args.node_rules[:args.max_node_feature_num,:args.max_node_feature_num]
         if not args.max_child_node:
             max_child_node = 0
             for i in range(len(graphs)):
@@ -24,7 +25,7 @@ def create(args):
                     else:
                         temp_max_child_node = graphs[i].degree(node)-1
                         max_child_node = max(temp_max_child_node, max_child_node)
-            args.max_child_node = max_child_node
+            args.max_child_node = max_child_node+1
 
     return graphs
 
