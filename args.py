@@ -78,7 +78,7 @@ class Args():
         self.num_workers = 0  # num workers to load data, default 4
         self.batch_ratio = 4  # how many batches of samples per epoch, default 32, e.g., 1 epoch = 32 batches
         self.epochs = 1000  # now one epoch means self.batch_ratio x batch_size
-        self.epochs_test_start = 500
+        self.epochs_test_start = 0
         self.epochs_test = 100
         self.epochs_log = 10
         self.epochs_save = 1000
@@ -119,8 +119,12 @@ class Args():
         self.metric_baseline = 'clustering'
 
         # generate node value matrix
-        node_rules = np.zeros((200, 200))
         f = open("nodeRules2matrix.txt", 'r')
+        lines = f.readlines()
+        node_feature_num = int(lines[-1].split(' ')[0])
+        node_rules = np.zeros((node_feature_num,node_feature_num))
+        f.close()
+        f = open('nodeRules2matrix.txt','r')
         for line in f.readlines():
             line = line.strip('\n')
             row_node, column_node = line.split(' ')
