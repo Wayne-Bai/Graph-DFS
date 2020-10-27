@@ -42,7 +42,6 @@ def Graph_load_batch(min_num_nodes=1, max_num_nodes=300, name='AST'):
     data_node_label_matrix = list(set(data_node_label))
     # data_node_label_matrix = (np.array(data_node_label_matrix) - 1).tolist()
     data_node_label_mx = [i - 1 for i in data_node_label_matrix]
-    print(data_node_label_mx)
 
     print("Loading node type")
     # node_rules_matrix = args.node_rules[[data_node_label_mx]]
@@ -54,9 +53,10 @@ def Graph_load_batch(min_num_nodes=1, max_num_nodes=300, name='AST'):
     data_tuple = list(map(tuple, data_adj))
     number_of_nodes = data_node_label.shape[0]
     number_of_node_types = max(data_node_label)
-    rule_matrix = args.node_rules[:number_of_node_types + 1, :number_of_node_types + 1]
-    rule_matrix[-1, :] = 0
-    rule_matrix[:, -1] = 0
+    # rule_matrix = args.node_rules[:number_of_node_types + 1, :number_of_node_types + 1]
+    # rule_matrix[-1, :] = 0
+    # rule_matrix[:, -1] = 0
+    rule_matrix = args.node_rules
     print(rule_matrix)
     # print(len(data_tuple))
     # print(data_tuple[0])
@@ -108,10 +108,6 @@ def Graph_load_batch(min_num_nodes=1, max_num_nodes=300, name='AST'):
 
         G_sub = G.subgraph(nodes)
 
-        # print(G_sub.nodes())
-
-        # print(nodes)
-        print(G_sub.degree)
         for j in range(number_of_graph_types):
             feature = 'f' + str(j + 1)
             if j == data_graph_labels[i] - 1:
@@ -119,10 +115,6 @@ def Graph_load_batch(min_num_nodes=1, max_num_nodes=300, name='AST'):
             else:
                 G_sub.graph[feature] = 0
 
-        # print('nodes', G_sub.number_of_nodes())
-        # print('edges', G_sub.number_of_edges())
-        # print('label', G_sub.graph)
-        print('node feature', G_sub.nodes(data=True))
         if G_sub.number_of_nodes() >= min_num_nodes and G_sub.number_of_nodes() <= max_num_nodes:
             graphs.append(G_sub)
             if G_sub.number_of_nodes() > max_nodes:
