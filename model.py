@@ -20,13 +20,15 @@ import time
 
 
 def get_max_value(l):
-    max_value = max(list(l))
-    for i in range(len(list(l))):
-        if list(l)[i] == max_value:
-            l[i] = 1
+    temp_l = l[0,0,:]
+    max_value = max(list(temp_l))
+    for i in range(len(list(temp_l))):
+        if list(temp_l)[i] == max_value:
+            temp_l[i] = 1
         else:
-            l[i] = 0
-    max_value_index = list(l).index(max_value)
+            temp_l[i] = 0
+    max_value_index = list(temp_l).index(max_value)
+    l[0,0,:] = temp_l
 
     return l,max_value_index
 
