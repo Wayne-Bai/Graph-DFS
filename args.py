@@ -8,7 +8,7 @@ class Args():
         ### if clean tensorboard
         self.clean_tensorboard = False
         ### Which CUDA GPU device is used for training
-        self.cuda = 0
+        self.cuda = 1
 
         ### Which GraphRNN model variant is used.
         # The simple version of Graph RNN
@@ -77,7 +77,7 @@ class Args():
         ### training config
         self.num_workers = 0  # num workers to load data, default 4
         self.batch_ratio = 4  # how many batches of samples per epoch, default 32, e.g., 1 epoch = 32 batches
-        self.epochs = 1000  # now one epoch means self.batch_ratio x batch_size
+        self.epochs = 500  # now one epoch means self.batch_ratio x batch_size
         self.epochs_test_start = 0
         self.epochs_test = 100
         self.epochs_log = 10
