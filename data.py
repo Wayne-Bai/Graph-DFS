@@ -199,7 +199,7 @@ def generate_Graph(matrix, G:nx.Graph,args):
     #edge
     next_node_num = []
     for node in range(N):
-        indicator = matrix[node, args.max_node_feature_num:args.max_child_node]
+        indicator = matrix[node, args.max_node_feature_num:args.max_node_feature_num+args.max_child_node]
         if indicator.any():
             for idx in range(args.max_child_node):
                 if matrix[node, args.max_node_feature_num+idx] == 1:
@@ -489,8 +489,12 @@ class Graph_sequence_sampler_pytorch(torch.utils.data.Dataset):
         node_feature = node_feature[x_idx,:]
         number_of_children = number_of_children[x_idx,:]
 
-        x_batch = np.zeros((self.n,node_feature.shape[1]+self.max_child_node))
-        x_batch[0:node_feature.shape[0],:] = np.concatenate((node_feature, number_of_children), axis=1)
+        # x_batch = np.zeros((self.n+1,node_feature.shape[1]+self.max_child_node))
+        # x_batch[0,:] = 1
+        # x_batch[1:node_feature.shape[0],:] = np.concatenate((node_feature, number_of_children), axis=1)
+
+        x_batch = np.zeros((self.n, node_feature.shape[1] + self.max_child_node))
+        x_batch[:node_feature.shape[0], :] = np.concatenate((node_feature, number_of_children), axis=1)
 
         return {'x':x_batch,'len':len_batch}
 
@@ -513,7 +517,6 @@ class Graph_sequence_sampler_pytorch(torch.utils.data.Dataset):
         offset = min(node_num_list)
         number_of_child = np.zeros(shape=(N,CN))
         for node, child in node_child.items():
-            if node in node_num_list and child-1 > -1:
-                number_of_child[node-offset][child-1] = 1
+            number_of_child[node-offset][child] = 1
         number_of_child = number_of_child[node_num_list - offset, :]
         return number_of_child
