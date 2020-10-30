@@ -23,10 +23,10 @@ class Args():
         ### Which dataset is used to train the model
 
         self.graph_type = "AST"
-        self.dataset_type = "2"
+        # self.dataset_type = "2"
         # self.dataset_type = '500-10'
         # self.dataset_type = '2-30'
-        # self.dataset_type = "50"
+        self.dataset_type = "50"
         # self.dataset_type = "9"
         # self.dataset_type = "50-200"
         # self.dataset_type = "54"
