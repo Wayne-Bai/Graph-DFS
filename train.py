@@ -46,7 +46,7 @@ def train_rnn_epoch(epoch, args, rnn, output, data_loader,
         x_unsorted = data['x'].float() # N * (NF + max CN)
         y_len_unsorted = data['len']
         y_len_max = max(y_len_unsorted)
-        x_unsorted = x_unsorted[:, 0:y_len_max+1, :]
+        x_unsorted = x_unsorted[:, 0:y_len_max, :]
         rnn.hidden = rnn.init_hidden(batch_size=x_unsorted.size(0))
 
         y_len, sort_index = torch.sort(y_len_unsorted, 0, descending=True)
