@@ -37,28 +37,6 @@ if __name__ == '__main__':
     # graphs_test = graphs[int(0.8 * graphs_len):]
     # graphs_train = graphs[0:int(0.8*graphs_len)]
     graphs_test = graphs_train
-    # graphs_validate = graphs[0:max(1,int(0.2*graphs_len))]
-
-    # if use pre-saved graphs
-    # dir_input = "/dfs/scratch0/jiaxuany0/graphs/"
-    # fname_test = dir_input + args.note + '_' + args.graph_type + '_' + str(args.num_layers) + '_' + str(
-    #     args.hidden_size_rnn) + '_test_' + str(0) + '.dat'
-    # graphs = load_graph_list(fname_test, is_real=True)
-    # graphs_test = graphs[int(0.8 * graphs_len):]
-    # graphs_train = graphs[0:int(0.8 * graphs_len)]
-    # graphs_validate = graphs[int(0.2 * graphs_len):int(0.4 * graphs_len)]
-
-    # graph_validate_len = 0
-    # for graph in graphs_validate:
-    #     graph_validate_len += graph.number_of_nodes()
-    # graph_validate_len /= len(graphs_validate)
-    # print('graph_validate_len', graph_validate_len)
-    #
-    # graph_test_len = 0
-    # for graph in graphs_test:
-    #     graph_test_len += graph.number_of_nodes()
-    # graph_test_len /= len(graphs_test)
-    # print('graph_test_len', graph_test_len)
 
     args.max_num_node = max([graphs[i].number_of_nodes() for i in range(len(graphs))])
     max_num_edge = max([graphs[i].number_of_edges() for i in range(len(graphs))])
@@ -99,9 +77,9 @@ if __name__ == '__main__':
         dataset = Graph_sequence_sampler_pytorch_canonical(graphs_train, max_prev_node=args.max_prev_node)
         args.max_prev_node = args.max_num_node - 1
     else:
-        train_set = Graph_sequence_sampler_pytorch(graphs_train, max_prev_node=args.max_prev_node,
+        train_set = Graph_sequence_sampler_pytorch(graphs_train, args, max_prev_node=args.max_prev_node,
                                                    max_num_node=args.max_num_node)
-        test_set = Graph_sequence_sampler_pytorch(graphs_test, max_prev_node=args.max_prev_node,
+        test_set = Graph_sequence_sampler_pytorch(graphs_test, args, max_prev_node=args.max_prev_node,
                                                   max_num_node=args.max_num_node)
     sample_strategy = torch.utils.data.sampler.WeightedRandomSampler(
         [1.0 / len(train_set) for i in range(len(train_set))],
