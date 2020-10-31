@@ -10,23 +10,15 @@ class Args():
         ### Which CUDA GPU device is used for training
         self.cuda = 1
 
-        ### Which GraphRNN model variant is used.
-        # The simple version of Graph RNN
-        # self.note = 'GraphRNN_MLP'
-        # The dependent Bernoulli sequence version of GraphRNN
         self.note = 'GraphRNN_RNN'
-
-        ## for comparison, removing the BFS compoenent
-        # self.note = 'GraphRNN_MLP_nobfs'
-        # self.note = 'GraphRNN_RNN_nobfs'
 
         ### Which dataset is used to train the model
 
         self.graph_type = "AST"
-        # self.dataset_type = "2"
+        self.dataset_type = "2"
         # self.dataset_type = '500-10'
         # self.dataset_type = '2-30'
-        self.dataset_type = "50"
+        # self.dataset_type = "50"
         # self.dataset_type = "9"
         # self.dataset_type = "50-200"
         # self.dataset_type = "54"
@@ -53,9 +45,6 @@ class Args():
         self.max_child_node = None
         self.edge_feature_output_dim = None  # note as EF
         self.node_feature_input_dim = None  # note as INF
-
-        self.only_use_adj = True
-        self.not_use_pooling = True
 
         ### network config
         ## GraphRNN
@@ -109,14 +98,6 @@ class Args():
         self.load = False  # if load model, default lr is very low
         self.load_epoch = 1000
         self.save = True
-
-        ### baseline config
-        # self.generator_baseline = 'Gnp'
-        self.generator_baseline = 'BA'
-
-        # self.metric_baseline = 'general'
-        # self.metric_baseline = 'degree'
-        self.metric_baseline = 'clustering'
 
         # generate node value matrix
         f = open("nodeRules2matrix.txt", 'r')
