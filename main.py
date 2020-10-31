@@ -55,31 +55,11 @@ if __name__ == '__main__':
     save_graph_list(graphs, args.graph_save_path + args.fname_test + '0.dat')
     print('train and test graphs saved at: ', args.graph_save_path + args.fname_test + '0.dat')
 
-    ### comment when normal training, for graph completion only
-    # p = 0.5
-    # for graph in graphs_train:
-    #     for node in list(graph.nodes()):
-    #         # print('node',node)
-    #         if np.random.rand()>p:
-    #             graph.remove_node(node)
-    # for edge in list(graph.edges()):
-    #     # print('edge',edge)
-    #     if np.random.rand()>p:
-    #         graph.remove_edge(edge[0],edge[1])
-
     ### dataset initialization
-    if 'nobfs' in args.note:
-        print('nobfs')
-        dataset = Graph_sequence_sampler_pytorch_nobfs(graphs_train, max_num_node=args.max_num_node)
-        args.max_prev_node = args.max_num_node - 1
-    if 'barabasi_noise' in args.graph_type:
-        print('barabasi_noise')
-        dataset = Graph_sequence_sampler_pytorch_canonical(graphs_train, max_prev_node=args.max_prev_node)
-        args.max_prev_node = args.max_num_node - 1
-    else:
-        train_set = Graph_sequence_sampler_pytorch(graphs_train, args, max_prev_node=args.max_prev_node,
+
+    train_set = Graph_sequence_sampler_pytorch(graphs_train, args, max_prev_node=args.max_prev_node,
                                                    max_num_node=args.max_num_node)
-        test_set = Graph_sequence_sampler_pytorch(graphs_test, args, max_prev_node=args.max_prev_node,
+    test_set = Graph_sequence_sampler_pytorch(graphs_test, args, max_prev_node=args.max_prev_node,
                                                   max_num_node=args.max_num_node)
     sample_strategy = torch.utils.data.sampler.WeightedRandomSampler(
         [1.0 / len(train_set) for i in range(len(train_set))],
@@ -94,41 +74,19 @@ if __name__ == '__main__':
                                                   sampler=sample_strategy)
 
     ### model initialization
-    ## Graph RNN VAE model
-    # lstm = LSTM_plain(input_size=args.max_prev_node, embedding_size=args.embedding_size_lstm,
-    #                   hidden_size=args.hidden_size, num_layers=args.num_layers).cuda()
 
-    if 'GraphRNN_VAE_conditional' in args.note:
-        rnn = GRU_plain(input_size=args.max_prev_node, embedding_size=args.embedding_size_rnn,
-                        hidden_size=args.hidden_size_rnn, num_layers=args.num_layers, has_input=True,
-                        has_output=False).cuda()
-        output = MLP_VAE_conditional_plain(h_size=args.hidden_size_rnn, embedding_size=args.embedding_size_output,
-                                           y_size=args.max_prev_node).cuda()
-    elif 'GraphRNN_MLP' in args.note:
-        rnn = GRU_plain(input_size=args.max_prev_node, embedding_size=args.embedding_size_rnn,
-                        hidden_size=args.hidden_size_rnn, num_layers=args.num_layers, has_input=True,
-                        has_output=False).cuda()
-        output = MLP_plain(h_size=args.hidden_size_rnn, embedding_size=args.embedding_size_output,
-                           y_size=args.max_prev_node).cuda()
-    elif 'GraphRNN_RNN' in args.note:
-        rnn = GRU_plain(input_size=args.max_node_feature_num+args.max_child_node, embedding_size=args.embedding_size_rnn,
+    rnn = GRU_plain(input_size=args.max_node_feature_num+args.max_child_node, embedding_size=args.embedding_size_rnn,
                         hidden_size=args.hidden_size_rnn, num_layers=args.num_layers, has_input=True,
                         has_output=True, output_size=args.hidden_size_rnn_output).cuda()
-        node_f_gen = MLP_plain(h_size=args.hidden_size_rnn_output, embedding_size=args.embedding_size_output,
+    node_f_gen = MLP_plain(h_size=args.hidden_size_rnn_output, embedding_size=args.embedding_size_output,
                                y_size=args.max_node_feature_num+args.max_child_node).cuda()
-        output = GRU_plain(input_size=args.max_node_feature_num+args.max_child_node, embedding_size=args.embedding_size_rnn_output,
+    output = GRU_plain(input_size=args.max_node_feature_num+args.max_child_node, embedding_size=args.embedding_size_rnn_output,
                            hidden_size=args.hidden_size_rnn_output, num_layers=args.num_layers, has_input=True,
                            has_output=True,
                            output_size=args.max_node_feature_num+args.max_child_node).cuda()  # TODO: understand input_size, output_size ?
-        edge_f_gen = None
-        # edge_f_gen = MLP_plain(h_size=args.edge_feature_output_dim, embedding_size=args.embedding_size_output, y_size=args.edge_feature_output_dim).cuda()
+    edge_f_gen = None
 
     ### start training
     train(args, train_set_loader, rnn, output, node_f_gen, edge_f_gen, test_set=test_set_loader)
 
-    ### graph completion
-    # train_graph_completion(args,train_set_loader,rnn,output)
-
-    ### nll evaluation
-    # train_nll(args, dataset_loader, dataset_loader, rnn, output, max_iter = 200, graph_validate_len=graph_validate_len,graph_test_len=graph_test_len)
 
