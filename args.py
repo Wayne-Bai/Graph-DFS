@@ -8,7 +8,7 @@ class Args():
         ### if clean tensorboard
         self.clean_tensorboard = False
         ### Which CUDA GPU device is used for training
-        self.cuda = 1
+        self.cuda = 0
 
         self.note = 'GraphRNN_RNN'
 
@@ -97,8 +97,16 @@ class Args():
 
         self.load = False  # if load model, default lr is very low
         self.load_epoch = 1000
-        self.save = True
+        self.save = False
 
+        ### baseline config
+        # self.generator_baseline = 'Gnp'
+        self.generator_baseline = 'BA'
+
+        # self.metric_baseline = 'general'
+        # self.metric_baseline = 'degree'
+        self.metric_baseline = 'clustering'
+        
         # generate node value matrix
         f = open("nodeRules2matrix.txt", 'r')
         lines = f.readlines()
