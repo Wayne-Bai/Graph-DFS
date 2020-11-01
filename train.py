@@ -83,7 +83,7 @@ def train_rnn_epoch(epoch, args, rnn, output, data_loader,
 
 
 def test_rnn_epoch(epoch, args, rnn, output, node_f_gen=None, edge_f_gen=None, test_batch_size=8, test_set=None):
-    if args.add_test_mask:
+    if args.if_add_test_mask:
         flag_node_f_gen = False
         if node_f_gen:
             flag_node_f_gen = True
