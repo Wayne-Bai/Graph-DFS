@@ -65,7 +65,7 @@ def train_rnn_epoch(epoch, args, rnn, output, data_loader,
 
         loss_node_feature = new_cross_entropy(x_pred[:,:,:args.max_node_feature_num], output_x_feature, if_CE=True, mask_len=y_len)
         loss_node_edge = new_cross_entropy(x_pred[:,:,args.max_node_feature_num:], output_x_edge, if_CE=True, mask_len=y_len)
-        loss = loss_node_feature + loss_node_edge
+        loss = args.node_loss_w*loss_node_feature + args.edge_loss_w*loss_node_edge
         loss.backward()
 
         optimizer_rnn.step()
