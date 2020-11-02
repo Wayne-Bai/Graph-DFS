@@ -46,7 +46,8 @@ def train_rnn_epoch(epoch, args, rnn, output, data_loader,
         x_unsorted = data['x'].float() # N * (NF + max CN)
         y_len_unsorted = data['len']
         y_len_max = max(y_len_unsorted)
-        x_unsorted = x_unsorted[:, 0:y_len_max+1, :]
+        # x_unsorted = x_unsorted[:, 0:y_len_max, :]
+        x_unsorted = x_unsorted[:, 0:y_len_max + 1, :]
         rnn.hidden = rnn.init_hidden(batch_size=x_unsorted.size(0))
 
         y_len, sort_index = torch.sort(y_len_unsorted, 0, descending=True)
@@ -57,6 +58,11 @@ def train_rnn_epoch(epoch, args, rnn, output, data_loader,
         output_x_feature = Variable(np.argmax(x[:,1:,:args.max_node_feature_num],axis=-1)).cuda()
         output_x_edge = Variable(np.argmax(x[:,1:,args.max_node_feature_num:],axis=-1)).cuda()
         x = Variable(x).cuda()
+
+        # x = torch.index_select(x_unsorted, 0, sort_index)
+        # output_x_feature = Variable(np.argmax(x[:, :, :args.max_node_feature_num], axis=-1)).cuda()
+        # output_x_edge = Variable(np.argmax(x[:, :, args.max_node_feature_num:], axis=-1)).cuda()
+        # x = Variable(x).cuda()
 
         h = rnn(x, pack=True, input_len = new_y_len)
         h = h[:,1:,:]
