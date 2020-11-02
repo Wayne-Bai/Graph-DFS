@@ -71,14 +71,17 @@ def generate_Graph(matrix, G:nx.Graph,args):
     while sum(next_node_num) != 0:
         curr_last_element = find_last_element(next_node_num)
         while next_node_num[curr_last_element] > 0:
-            for i in range(curr_last_element + 1, len(next_node_num)):
-                if i not in used_node:
-                    G.add_edge(curr_last_element, i)
-                    next_node_num[curr_last_element] = next_node_num[curr_last_element] - 1
-                    if next_node_num[i] == 0:
-                        used_node.append(i)
-                    if next_node_num[curr_last_element] == 0:
-                        break
+            if len(used_node) != len(next_node_num) - (curr_last_element+1):
+                for i in range(curr_last_element + 1, len(next_node_num)):
+                    if i not in used_node:
+                        G.add_edge(curr_last_element, i)
+                        next_node_num[curr_last_element] = next_node_num[curr_last_element] - 1
+                        if next_node_num[i] == 0:
+                            used_node.append(i)
+                        if next_node_num[curr_last_element] == 0:
+                            break
+            else:
+                next_node_num[curr_last_element] = 0
 
     return G
 
@@ -151,12 +154,12 @@ class Graph_sequence_sampler_pytorch(torch.utils.data.Dataset):
         node_feature = node_feature[x_idx,:]
         number_of_children = number_of_children[x_idx,:]
 
-        # x_batch = np.zeros((self.n+1,node_feature.shape[1]+self.max_child_node))
-        # x_batch[0,:] = 1
-        # x_batch[1:node_feature.shape[0],:] = np.concatenate((node_feature, number_of_children), axis=1)
+        x_batch = np.zeros((self.n+1,node_feature.shape[1]+self.max_child_node))
+        x_batch[0,:] = 1
+        x_batch[1:node_feature.shape[0]+1,:] = np.concatenate((node_feature, number_of_children), axis=1)
 
-        x_batch = np.zeros((self.n, node_feature.shape[1] + self.args.max_child_node))
-        x_batch[:node_feature.shape[0], :node_feature.shape[1]+number_of_children.shape[1]] = np.concatenate((node_feature, number_of_children), axis=1)
+        # x_batch = np.zeros((self.n, node_feature.shape[1] + self.args.max_child_node))
+        # x_batch[:node_feature.shape[0], :node_feature.shape[1]+number_of_children.shape[1]] = np.concatenate((node_feature, number_of_children), axis=1)
 
         return {'x':x_batch,'len':len_batch}
 
