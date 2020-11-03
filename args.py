@@ -8,19 +8,19 @@ class Args():
         ### if clean tensorboard
         self.clean_tensorboard = False
         ### Which CUDA GPU device is used for training
-        self.cuda = 1
+        self.cuda = 0
 
         self.note = 'GraphRNN_RNN'
 
         ### Which dataset is used to train the model
 
         self.graph_type = "AST"
-        self.dataset_type = "2"
+        # self.dataset_type = "2"
         # self.dataset_type = '500-10'
         # self.dataset_type = '2-30'
         # self.dataset_type = "50"
         # self.dataset_type = "9"
-        # self.dataset_type = "50-200"
+        self.dataset_type = "50-200"
         # self.dataset_type = "54"
         # self.dataset_type = "500"
         # self.dataset_type = 'POC'
@@ -66,8 +66,8 @@ class Args():
         ### training config
         self.num_workers = 0  # num workers to load data, default 4
         self.batch_ratio = 4  # how many batches of samples per epoch, default 32, e.g., 1 epoch = 32 batches
-        self.epochs = 2000  # now one epoch means self.batch_ratio x batch_size
-        self.epochs_test_start = 1500
+        self.epochs = 5000  # now one epoch means self.batch_ratio x batch_size
+        self.epochs_test_start = 3000
         self.epochs_test = 100
         self.epochs_log = 10
         self.epochs_save = 1000
@@ -123,7 +123,7 @@ class Args():
         self.leaf_node_idx_list = None
 
         self.if_add_train_mask = False
-        self.if_add_test_mask = True
+        self.if_add_test_mask = False
 
         self.if_test_use_groundtruth = False
 
