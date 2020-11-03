@@ -57,6 +57,9 @@ def train_rnn_epoch(epoch, args, rnn, output, data_loader,
         x = torch.index_select(x_unsorted,0,sort_index)
         output_x_feature = Variable(np.argmax(x[:,1:,:args.max_node_feature_num],axis=-1)).cuda()
         output_x_edge = Variable(np.argmax(x[:,1:,args.max_node_feature_num:],axis=-1)).cuda()
+
+        # mode: input i output i+1
+        x = x[:, :-1, :]
         x = Variable(x).cuda()
 
         # x = torch.index_select(x_unsorted, 0, sort_index)
@@ -64,11 +67,11 @@ def train_rnn_epoch(epoch, args, rnn, output, data_loader,
         # output_x_edge = Variable(np.argmax(x[:, :, args.max_node_feature_num:], axis=-1)).cuda()
         # x = Variable(x).cuda()
 
-        h = rnn(x, pack=True, input_len = new_y_len)
-        h = h[:,1:,:]
+        h = rnn(x, pack=True, input_len = y_len) #new_y_len)
+        #h = h[:,1:,:] # mode: input i output i
 
         x_pred = node_f_gen(h)
-
+   
         loss_node_feature = new_cross_entropy(x_pred[:,:,:args.max_node_feature_num], output_x_feature, if_CE=True, mask_len=y_len)
         loss_node_edge = new_cross_entropy(x_pred[:,:,args.max_node_feature_num:], output_x_edge, if_CE=True, mask_len=y_len)
         loss = args.node_loss_w*loss_node_feature + args.edge_loss_w*loss_node_edge
