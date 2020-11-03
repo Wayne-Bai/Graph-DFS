@@ -154,9 +154,9 @@ class Graph_sequence_sampler_pytorch(torch.utils.data.Dataset):
         node_feature = node_feature[x_idx,:]
         number_of_children = number_of_children[x_idx,:]
 
-        x_batch = np.zeros((self.n+1,node_feature.shape[1]+self.max_child_node))
+        x_batch = np.zeros((self.n+1,node_feature.shape[1]+self.args.max_child_node))
         x_batch[0,:] = 1
-        x_batch[1:node_feature.shape[0]+1,:] = np.concatenate((node_feature, number_of_children), axis=1)
+        x_batch[1:node_feature.shape[0]+1,:node_feature.shape[1]+number_of_children.shape[1]] = np.concatenate((node_feature, number_of_children), axis=1)
 
         # x_batch = np.zeros((self.n, node_feature.shape[1] + self.args.max_child_node))
         # x_batch[:node_feature.shape[0], :node_feature.shape[1]+number_of_children.shape[1]] = np.concatenate((node_feature, number_of_children), axis=1)
