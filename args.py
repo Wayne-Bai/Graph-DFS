@@ -123,7 +123,7 @@ class Args():
         self.leaf_node_idx_list = None
 
         self.if_add_train_mask = False
-        self.if_add_test_mask = False
+        self.if_add_test_mask = True
 
         self.if_test_use_groundtruth = False
 
